@@ -1,0 +1,31 @@
+version: '3'
+
+services:
+  db:
+    # image: postgres:16-bullseye
+    build:
+      context: .
+      dockerfile: Dockerfile.postgres
+    container_name: some-postgres
+    platform: linux/x86_64          # linux/x86_64 / linux/arm64/v8
+    restart: unless-stopped
+    ports:
+      - "5432:${POSTGRES_PORT:-5432}"
+    environment:
+      POSTGRES_DB: ${DB:-db}
+      POSTGRES_USER: ${DB_USER:-someuser}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-somepassword}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  adminer:
+    image: adminer
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "8080:8080"

@@ -1,0 +1,11 @@
+# syntax=docker/dockerfile:1.6
+
+FROM mysql:8.0-debian
+
+ENV MYSQL_DATABASE=${DB:-db}
+ENV MYSQL_USER=${DB_USER:-someuser}
+ENV MYSQL_PASSWORD=${DB_PASSWORD:-somepassword}
+ENV MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD:-root}
+ENV MYSQL_PORT=${MYSQL_PORT:-3306}
+
+EXPOSE ${MYSQL_PORT}
