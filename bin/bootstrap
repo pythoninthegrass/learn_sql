@@ -1,0 +1,139 @@
+#!/usr/bin/env bash
+
+# get the root directory
+GIT_ROOT="$(git rev-parse --show-toplevel 2>/dev/null)"
+SCRIPT_DIR=$(dirname "$(readlink -f "$0")")
+if [ -n "$GIT_ROOT" ]; then
+	TLD="$(git rev-parse --show-toplevel)"
+else
+	TLD="${SCRIPT_DIR}"
+fi
+
+# env vars
+DOCKER_MYSQL="${TLD}/docker/docker-compose.mysql.yml"
+DOCKER_POSTGRES="${TLD}/docker/docker-compose.postgres.yml"
+ENV_FILE="${TLD}/.env"
+
+# source .env file skipping commented lines
+if [ ! -f "${ENV_FILE}" ]; then
+	echo "No .env file found. Filling in with defaults..."
+	cp "${TLD}/.env.example" "${ENV_FILE}"
+fi
+export $(grep -v '^#' ${ENV_FILE} | xargs)
+
+# check whether docker-compose or docker should be used
+if [ -x "$(command -v docker-compose)" ]; then
+	docker_compose="docker-compose"
+elif [ -x "$(command -v docker)" ]; then
+	docker_compose="docker compose"
+else
+	echo "Neither docker-compose nor docker found. Exiting..."
+	exit 1
+fi
+
+# read user input for mysql or postgres using case statement
+echo "Which database do you want to use?"
+echo -e "1) mysql\n2) postgres"
+read -p "Enter your choice: " db_choice
+case $db_choice in
+	1)
+		db="mysql"
+		;;
+	2)
+		db="postgres"
+		;;
+	*)
+		echo "Invalid choice. Exiting..."
+		exit 1
+		;;
+esac
+
+# TODO: test postgres
+
+# check if db is already running, if not start container
+if [ "$db" == "mysql" ]; then
+	if [ -n "$(docker ps -q -f name=some-mysql)" ]; then
+		echo "MySQL is already running. Skipping..."
+	else
+		echo "Starting MySQL container..."
+		$docker_compose -f "${DOCKER_MYSQL}" up -d
+	fi
+elif [ "$db" == "postgres" ]; then
+	if [ -n "$(docker ps -q -f name=some-postgres)" ]; then
+		echo "MySQL is already running. Skipping..."
+	else
+		echo "Starting MySQL container..."
+		$docker_compose -f "${DOCKER_POSTGRES}" up -d
+	fi
+fi
+
+# get ip address of container
+echo "Starting container..."
+if [ "$db" == "mysql" ]; then
+	ip=$(docker inspect -f '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' some-mysql)
+elif [ "$db" == "postgres" ]; then
+	ip=$(docker inspect -f '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' some-postgres)
+fi
+
+# create db
+echo "Creating database..."
+if [ "$db" == "mysql" ]; then
+	docker exec -it some-mysql mysql \
+		-u root \
+		-p${MYSQL_ROOT_PASSWORD} \
+		-h "$ip" \
+		-P ${MYSQL_PORT} \
+		--protocol=tcp \
+		-e "CREATE DATABASE IF NOT EXISTS ${DB};"
+elif [ "$db" == "postgres" ]; then
+	docker exec -it some-postgres psql \
+		-U postgres \
+		-c "CREATE DATABASE ${DB};"
+fi
+
+# sql commands to run
+init=$(cat <<-EOF
+	# create db
+	CREATE DATABASE IF NOT EXISTS ${DB};
+
+	# create user on localhost
+	CREATE USER IF NOT EXISTS '${DB_USER}'@'localhost' IDENTIFIED BY '${DB_PASSWORD}';
+
+	# grant privileges
+	GRANT ALL PRIVILEGES ON ${DB}.* TO '${DB_USER}'@'localhost';
+EOF
+)
+
+# run commands
+echo "Setting up database..."
+if [ "$db" == "mysql" ]; then
+	docker exec -it some-mysql mysql \
+		-u root \
+		-p${MYSQL_ROOT_PASSWORD} \
+		-h "$ip" \
+		-P ${MYSQL_PORT} \
+		--protocol=tcp \
+		-e "$init"
+elif [ "$db" == "postgres" ]; then
+	docker exec -it some-postgres psql \
+		-U postgres \
+		-d ${DB} \
+		-c "$init"
+fi
+
+# get shell
+echo "Connecting to database..."
+if [ "$db" == "mysql" ]; then
+	docker exec -it some-mysql mysql \
+		-u ${DB_USER} \
+		-p${DB_PASSWORD} \
+		-h "$ip" \
+		-P ${MYSQL_PORT} \
+		--protocol=tcp \
+		-D ${DB}
+elif [ "$db" == "postgres" ]; then
+	docker exec -it some-postgres psql \
+		-U ${DB_USER} \
+		-d ${DB} \
+		-h "$ip"
+fi

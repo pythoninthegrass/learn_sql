@@ -1,0 +1,24 @@
+version: '3'
+
+services:
+  db:
+    # image: mysql:8.0-debian
+    build:
+      context: .
+      dockerfile: Dockerfile.mysql
+    container_name: some-mysql
+    platform: linux/x86_64          # linux/x86_64 / linux/arm64/v8
+    restart: unless-stopped
+    ports:
+      - "3306:${MYSQL_PORT:-3306}"
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
+      MYSQL_DATABASE: ${DB:-db}
+      MYSQL_USER: ${DB_USER:-someuser}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-somepassword}
+    # volumes:
+    #   - ../config.cnf:/etc/mysql/conf.d/config.cnf
+    healthcheck:
+      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
+      timeout: 5s
+      retries: 5

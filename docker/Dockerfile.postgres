@@ -1,0 +1,12 @@
+# syntax=docker/dockerfile:1.6
+
+FROM postgres:16-bullseye
+
+# postgres env vars
+ENV DATABASE_NAME=${POSTGRES_DB:-postgres}
+ENV DATABASE_URL=${POSTGRES_HOST:-db}
+ENV DATABASE_USER=${POSTGRES_USER:-someuser}
+ENV DATABASE_PASSWORD=${POSTGRES_PASSWORD:-somepassword}
+ENV DATABASE_PORT=${POSTGRES_PORT:-5432}
+
+EXPOSE ${POSTGRES_PORT}
