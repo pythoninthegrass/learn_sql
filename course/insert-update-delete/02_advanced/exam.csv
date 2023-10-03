@@ -1,0 +1,16 @@
+id,student_id,subject,written_exam_date,written_exam_score,written_score_date,oral_exam_date,oral_exam_score,oral_score_date
+1,1,Mathematics,2017-03-20,21,2017-03-30,2017-03-25,10,2017-03-25
+2,1,Spanish,2017-03-22,10,2017-03-26,2017-03-24,8,2017-03-24
+3,2,Spanish,2017-03-22,null,null,null,null,null
+4,2,English,2018-07-02,null,null,2018-06-21,20,2018-06-22
+5,3,English,null,null,null,2018-04-10,12,null
+6,4,English,2018-04-10,15,2018-04-18,null,12,null
+7,5,Spanish,2018-04-10,15,2018-04-18,2018-05-11,20,2018-05-12
+8,6,English,2018-04-10,15,2018-04-18,2018-05-11,null,null
+9,6,Mathematics,2018-05-22,30,2018-05-22,null,null,null
+10,7,Mathematics,null,null,null,2018-05-11,20,2018-05-12
+11,7,Spanish,2018-07-02,null,null,2018-06-21,20,2018-06-22
+12,8,English,2018-07-02,21,2018-07-06,2018-06-21,20,2018-06-22
+13,8,Mathematics,2017-03-20,17,null,2018-06-21,20,2018-06-22
+14,9,English,2017-03-25,15,2017-03-27,2017-04-06,11,2018-04-10
+15,10,English,2017-05-05,18,2017-05-17,2017-07-06,5,2018-07-12

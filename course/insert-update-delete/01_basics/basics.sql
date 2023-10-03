@@ -1,7 +1,3 @@
-# Intro Notes
-
-## Commands
-```sql
 -- show all rows from table
 SELECT * FROM dish;
 
@@ -32,25 +28,25 @@ SET name = 'Spring Rolls'
 WHERE name = 'Spring Scrolls';
 
 -- update multiple values
-UPDATE dish 
+UPDATE dish
 SET
   name = 'Green Sea Dragon',
-  price = 10 
+  price = 10
 WHERE name = 'Prawn Salad';
 
 -- modify multiple rows
-UPDATE dish 
+UPDATE dish
 SET price = 20
 WHERE type = 'main course';
 
 -- arithmetic
-UPDATE dish 
-SET price = 2 * price 
+UPDATE dish
+SET price = 2 * price
 WHERE type = 'starter';
 
 -- delete rows
-DELETE FROM dish 
-WHERE type = 'dessert'; 
+DELETE FROM dish
+WHERE type = 'dessert';
 
 -- remove all rows within table
 DELETE FROM dish;
@@ -66,4 +62,3 @@ WHERE name = 'Doberge Cake';
 -- delete
 DELETE FROM dish
 WHERE id = 1;
-```
