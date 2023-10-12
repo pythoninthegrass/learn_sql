@@ -12,7 +12,7 @@ hypothesis = {extras = ["cli"], version = "^6.87.1"}
 mysql-connector-python = "^8.1.0"
 numpy = "^1.26.0"
 pandas = "^2.1.1"
-psycopg2-binary = "2.9.6"
+psycopg2-binary = "2.9.9"
 pymysql = "^1.1.0"
 python-decouple = "^3.8"
 sqlalchemy = "2.0.13"
